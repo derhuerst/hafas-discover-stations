@@ -1,7 +1,7 @@
 {
 	"name": "hafas-discover-stations",
 	"description": "Pass in a HAFAS client, discover stations by querying departures.",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"main": "index.js",
 	"files": [
 		"index.js",
@@ -32,12 +32,10 @@
 		"tty": "^1.0.1"
 	},
 	"devDependencies": {
-		"tap-min": "^1.2.2",
-		"tape": "^4.8.0",
 		"vbb-hafas": "^4.0.0"
 	},
 	"scripts": {
-		"test": "node test.js | tap-min",
+		"test": "node test.js",
 		"prepublishOnly": "npm test"
 	}
 }
