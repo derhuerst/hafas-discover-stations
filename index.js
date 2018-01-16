@@ -10,13 +10,30 @@ const defaults = {
 }
 
 const createWalk = (hafas) => {
+	if (!hafas || !hafas.profile) throw new Error('invalid hafas client')
+	if ('string' !== typeof hafas.profile.timezone) {
+		throw new Error('hafas.profile.timezone must be a string')
+	}
+	if ('string' !== typeof hafas.profile.locale) {
+		throw new Error('hafas.profile.locale must be a string')
+	}
+	if ('function' !== typeof hafas.locations) {
+		throw new Error('hafas.locations must be a function')
+	}
+	if ('function' !== typeof hafas.departures) {
+		throw new Error('hafas.departures must be a function')
+	}
+	if ('function' !== typeof hafas.journeys) {
+		throw new Error('hafas.journeys must be a function')
+	}
+
 	const walk = (first, opt = {}) => {
 		opt = Object.assign({}, defaults, opt)
 		if (!opt.when) {
-			// next Monday 10 am
+			// beginning of next week 10 am
 			opt.when = DateTime.fromMillis(Date.now(), {
-				zone: 'Europe/Berlin', // todo
-				locale: 'de-DE' // todo
+				zone: hafas.profile.timezone,
+				locale: hafas.profile.locale
 			}).startOf('week').plus({weeks: 1, hours: 10}).toJSDate()
 		}
 
@@ -25,8 +42,8 @@ const createWalk = (hafas) => {
 			concurrency: opt.concurrency,
 			timeout: opt.timeout
 		})
-		const visited = {}
-		const edges = {} // by fromID-toID
+		const visited = Object.create(null)
+		const edges = Object.create(null) // by fromID-toID
 		let nrOfStations = 0
 		let nrOfEdges = 0
 		let nrOfRequests = 0

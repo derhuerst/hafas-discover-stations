@@ -2,7 +2,7 @@
 
 const test = require('tape')
 
-const walk = require('.')
+const createWalk = require('.')
 
 test('todo', (t) => {
 })
