@@ -17,18 +17,14 @@ npm install hafas-discover-stations
 
 ## Usage
 
-### using the command line
-
-```shell
-npx hafas-discover-stations [station-id] >stations.ndjson
-```
-
-### using JavaScript
-
 ```js
-const walk = require('hafas-discover-stations')
+const createWalk = require('hafas-discover-stations')
+const vbb = require('vbb-hafas')
 
-walk(stationId) // where to start
+const walk = createWalk(vbb)
+
+const friedrichstr = '900000100001' // where to start
+walk(friedrichstr)
 .on('data', console.log)
 .on('error', console.error)
 ```
@@ -41,10 +37,10 @@ walk(stationId) // where to start
 	- `requests`: the number of requests sent
 	- `queued`: the number of queued station IDs
 - `edge`: a connection between two stations, with the following keys:
-	- `from`: an [FPTF](https://github.com/public-transport/friendly-public-transport-format) `station` object
-	- `to`: an [FPTF](https://github.com/public-transport/friendly-public-transport-format) `station` object
+	- `from`: a [*Friendly Public Transport Format* `1.0.1` `station` object](https://github.com/public-transport/friendly-public-transport-format/blob/1.0.1/spec/readme.md#station)
+	- `to`: a [*Friendly Public Transport Format* `1.0.1` `station` object](https://github.com/public-transport/friendly-public-transport-format/blob/1.0.1/spec/readme.md#station)
 	- `duration`: time to travel, in milliseconds
-	- `line`: an [vbb-hafas `line` object](https://github.com/derhuerst/vbb-hafas/blob/master/docs/journeys.md#response)
+	- `line`: a [*Friendly Public Transport Format* `1.0.1` `line` object](https://github.com/public-transport/friendly-public-transport-format/blob/1.0.1/spec/readme.md#line)
 
 
 ## API
@@ -52,8 +48,6 @@ walk(stationId) // where to start
 ```js
 walk(stationId, [opt])
 ```
-
-`stationId` must be a string and a valid [IBNR](https://de.wikipedia.org/wiki/Internationale_Bahnhofsnummer).
 
 `opt` may have the following keys. It will be passed into [`queue()`](https://github.com/jessetane/queue#constructor).
 
