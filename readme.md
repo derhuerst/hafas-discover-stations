@@ -1,5 +1,7 @@
 # hafas-discover-stations
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/derhuerst/hafas-discover-stations.svg)](https://greenkeeper.io/)
+
 **Pass in a HAFAS client, discover stations by querying departures.** It tries to find all stations that all trains known by the endpoint stop at.
 
 [![npm version](https://img.shields.io/npm/v/hafas-discover-stations.svg)](https://www.npmjs.com/package/hafas-discover-stations)
