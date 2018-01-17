@@ -43,7 +43,7 @@ const createWalk = (hafas) => {
 			timeout: opt.timeout
 		})
 		const visited = Object.create(null)
-		const edges = Object.create(null) // by fromID-toID
+		const edges = Object.create(null) // by sourceID-targetID
 		let nrOfStations = 0
 		let nrOfEdges = 0
 		let nrOfRequests = 0
@@ -57,7 +57,7 @@ const createWalk = (hafas) => {
 			})
 		}
 
-		const onStations = (stations, from) => {
+		const onStations = (stations, source) => {
 			for (let station of stations) {
 				if (visited[station.id]) return
 				visited[station.id] = true
@@ -65,27 +65,29 @@ const createWalk = (hafas) => {
 				nrOfStations++
 				out.emit('data', station)
 				queue.push(queryDepartures(station.id))
-				if (from) queue.push(queryJourneys(from, station.id))
+				if (source) queue.push(queryJourneys(source, station.id))
 			}
 			stats()
 		}
 
-		const onEdge = (from, to, duration, line) => {
-			const signature = [from.id, to.id, duration, line.name].join('-')
+		const onEdge = (source, target, duration, line) => {
+			const signature = [
+				source.id, target.id, duration, line.name
+			].join('-')
 			if (edges[signature]) return
 			edges[signature] = true
 
 			nrOfEdges++
-			out.emit('edge', {from, to, duration, line})
+			out.emit('edge', {source, target, duration, line})
 		}
 
-		const queryLocations = (name, from) => (cb) => {
+		const queryLocations = (name, source) => (cb) => {
 			nrOfRequests++
 			stats()
 
 			hafas.locations(name, {addresses: false, poi: false})
 			.then((stations) => {
-				onStations(stations, from)
+				onStations(stations, source)
 				cb()
 			})
 			.catch(cb)
@@ -98,19 +100,19 @@ const createWalk = (hafas) => {
 			hafas.departures(id, {when: opt.when})
 			.then((deps) => {
 				for (let dep of deps) {
-					const from = dep.station.id
-					queue.push(queryLocations(dep.direction, from))
+					const source = dep.station.id
+					queue.push(queryLocations(dep.direction, source))
 				}
 				cb()
 			})
 			.catch(cb)
 		}
 
-		const queryJourneys = (from, to) => (cb) => {
+		const queryJourneys = (source, target) => (cb) => {
 			nrOfRequests++
 			stats()
 
-			hafas.journeys(from, to, {passedStations: true, when: opt.when})
+			hafas.journeys(source, target, {passedStations: true, when: opt.when})
 			.then((journeys) => {
 				for (let journey of journeys) {
 					for (let leg of journey.legs) {
