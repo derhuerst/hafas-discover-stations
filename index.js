@@ -1,7 +1,7 @@
 'use strict'
 
 const {DateTime} = require('luxon')
-const {PassThrough} = require('stream')
+const {Readable} = require('stream')
 const createQueue = require('queue')
 
 const defaults = {
@@ -37,7 +37,10 @@ const createWalk = (hafas) => {
 			}).startOf('week').plus({weeks: 1, hours: 10}).toJSDate()
 		}
 
-		const out = new PassThrough({objectMode: true})
+		const out = new Readable({
+			objectMode: true,
+			read: () => {}
+		})
 		const queue = createQueue({
 			concurrency: opt.concurrency,
 			timeout: opt.timeout
@@ -63,7 +66,7 @@ const createWalk = (hafas) => {
 				visited[station.id] = true
 
 				nrOfStations++
-				out.emit('data', station)
+				out.push(station)
 				queue.push(queryDepartures(station.id))
 				if (source) queue.push(queryJourneys(source, station.id))
 			}
@@ -138,7 +141,7 @@ const createWalk = (hafas) => {
 		}
 
 		queue.on('error', (err) => out.emit('error', err))
-		queue.on('end', () => out.end())
+		queue.on('end', () => out.push(null))
 		out.stop = () => queue.end()
 
 		setImmediate(() => {
