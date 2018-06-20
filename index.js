@@ -140,7 +140,10 @@ const createWalk = (hafas) => {
 			.catch(cb)
 		}
 
-		queue.on('error', (err) => out.emit('error', err))
+		queue.on('error', (err) => {
+			if (err && err.isHafasError) out.emit('hafas-error', err)
+			else out.emit('error', err)
+		})
 		queue.on('end', () => out.push(null))
 		out.stop = () => queue.end()
 
