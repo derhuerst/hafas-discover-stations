@@ -63,7 +63,7 @@ const createWalk = (hafas) => {
 
 		const onStations = (stations, source) => {
 			for (let station of stations) {
-				const sId = parseStationId(station.id)
+				const sId = opt.parseStationId(station.id)
 				if (visited[sId]) return
 				visited[sId] = true
 
@@ -77,8 +77,8 @@ const createWalk = (hafas) => {
 
 		const onEdge = (source, target, duration, line) => {
 			const signature = [
-				parseStationId(source.id),
-				parseStationId(target.id),
+				opt.parseStationId(source.id),
+				opt.parseStationId(target.id),
 				duration, line.name
 			].join('-')
 			if (edges[signature]) return
@@ -107,7 +107,7 @@ const createWalk = (hafas) => {
 			hafas.departures(id, {when: opt.when})
 			.then((deps) => {
 				for (let dep of deps) {
-					const source = parseStationId(dep.station.id)
+					const source = opt.parseStationId(dep.station.id)
 					queue.push(queryLocations(dep.direction, source))
 				}
 				cb()
