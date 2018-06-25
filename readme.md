@@ -54,6 +54,7 @@ walk(stationId, [opt])
 
 - `concurrency`: number of requests run in parallel – default: `2`
 - `timeout`: timeout for a single job in milliseconds – default: `10000`
+- `parseStationId`: an optional function to process station IDs – default: `id => id`
 
 
 ## Contributing

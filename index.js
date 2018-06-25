@@ -6,7 +6,8 @@ const createQueue = require('queue')
 
 const defaults = {
 	concurrency: 2,
-	timeout: 10 * 10000
+	timeout: 10 * 10000,
+	parseStationId: id => id
 }
 
 const createWalk = (hafas) => {
@@ -62,20 +63,23 @@ const createWalk = (hafas) => {
 
 		const onStations = (stations, source) => {
 			for (let station of stations) {
-				if (visited[station.id]) return
-				visited[station.id] = true
+				const sId = parseStationId(station.id)
+				if (visited[sId]) return
+				visited[sId] = true
 
 				nrOfStations++
 				out.push(station)
-				queue.push(queryDepartures(station.id))
-				if (source) queue.push(queryJourneys(source, station.id))
+				queue.push(queryDepartures(sId))
+				if (source) queue.push(queryJourneys(source, sId))
 			}
 			stats()
 		}
 
 		const onEdge = (source, target, duration, line) => {
 			const signature = [
-				source.id, target.id, duration, line.name
+				parseStationId(source.id),
+				parseStationId(target.id),
+				duration, line.name
 			].join('-')
 			if (edges[signature]) return
 			edges[signature] = true
@@ -103,7 +107,7 @@ const createWalk = (hafas) => {
 			hafas.departures(id, {when: opt.when})
 			.then((deps) => {
 				for (let dep of deps) {
-					const source = dep.station.id
+					const source = parseStationId(dep.station.id)
 					queue.push(queryLocations(dep.direction, source))
 				}
 				cb()
