@@ -32,7 +32,7 @@
 		"tty": "^1.0.1"
 	},
 	"devDependencies": {
-		"vbb-hafas": "^4.0.0"
+		"vbb-hafas": "^5.0.0-alpha.5"
 	},
 	"scripts": {
 		"test": "node test.js",

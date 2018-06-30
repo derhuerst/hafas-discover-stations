@@ -119,23 +119,23 @@ const createWalk = (hafas) => {
 			nrOfRequests++
 			stats()
 
-			hafas.journeys(source, target, {passedStations: true, when: opt.when})
+			hafas.journeys(source, target, {stopovers: true, when: opt.when})
 			.then((journeys) => {
 				for (let journey of journeys) {
 					for (let leg of journey.legs) {
-						if (!Array.isArray(leg.passed)) continue
+						if (!Array.isArray(leg.stopovers)) continue
 
-						for (let i = 1; i < leg.passed.length; i++) {
-							const p1 = leg.passed[i - 1]
-							const p2 = leg.passed[i]
-							const start = p1.arrival || p1.departure
-							const end = p2.arrival || p2.departure
+						for (let i = 1; i < leg.stopovers.length; i++) {
+							const st1 = leg.stopovers[i - 1]
+							const st2 = leg.stopovers[i]
+							const start = st1.arrival || st1.departure // todo: swap?
+							const end = st2.arrival || st2.departure
 							if (!start || !end) continue
 							const duration = new Date(end) - new Date(start)
-							onEdge(p1.station, p2.station, duration, leg.line)
+							onEdge(st1.stop, st2.stop, duration, leg.line)
 						}
 
-						const stations = leg.passed.map((dep) => dep.station)
+						const stations = leg.stopovers.map((dep) => dep.station)
 						onStations(stations)
 					}
 				}
