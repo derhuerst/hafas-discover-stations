@@ -46,8 +46,10 @@ const createWalk = (hafas) => {
 			concurrency: opt.concurrency,
 			timeout: opt.timeout
 		})
-		const visited = Object.create(null)
-		const edges = Object.create(null) // by sourceID-targetID
+		const visitedStations = Object.create(null) // by station ID
+		const visitedTrips = Object.create(null) // by tripId
+		// by sourceID-targetID-duration-lineName
+		const visitedEdges = Object.create(null)
 		let nrOfStations = 0
 		let nrOfEdges = 0
 		let nrOfRequests = 0
@@ -61,16 +63,16 @@ const createWalk = (hafas) => {
 			})
 		}
 
-		const onStations = (stations, source) => {
+		const onStations = (stations, originId) => {
 			for (let station of stations) {
 				const sId = opt.parseStationId(station.id)
-				if (visited[sId]) return
-				visited[sId] = true
+				if (visitedStations[sId]) return
+				visitedStations[sId] = true
 
 				nrOfStations++
 				out.push(station)
 				queue.push(queryDepartures(sId))
-				if (source) queue.push(queryJourneys(source, sId))
+				if (originId) queue.push(queryJourneys(originId, sId))
 			}
 			stats()
 		}
@@ -81,20 +83,37 @@ const createWalk = (hafas) => {
 				opt.parseStationId(target.id),
 				duration, line.name
 			].join('-')
-			if (edges[signature]) return
-			edges[signature] = true
+			if (visitedEdges[signature]) return
+			visitedEdges[signature] = true
 
 			nrOfEdges++
 			out.emit('edge', {source, target, duration, line})
 		}
 
-		const queryLocations = (name, source) => (cb) => {
+		const onLeg = (leg) => {
+			if (!Array.isArray(leg.stopovers)) return // todo
+
+			for (let i = 1; i < leg.stopovers.length; i++) {
+				const st1 = leg.stopovers[i - 1]
+				const st2 = leg.stopovers[i]
+				const start = st1.arrival || st1.departure // todo: swap?
+				const end = st2.arrival || st2.departure
+				if (!start || !end) continue
+				const duration = new Date(end) - new Date(start)
+				onEdge(st1.stop, st2.stop, duration, leg.line)
+			}
+
+			const stations = leg.stopovers.map(st => st.stop)
+			onStations(stations)
+		}
+
+		const queryLocations = (name, originId) => (cb) => {
 			nrOfRequests++
 			stats()
 
 			hafas.locations(name, {addresses: false, poi: false})
 			.then((stations) => {
-				onStations(stations, source)
+				onStations(stations, originId)
 				cb()
 			})
 			.catch(cb)
@@ -107,37 +126,25 @@ const createWalk = (hafas) => {
 			hafas.departures(id, {when: opt.when})
 			.then((deps) => {
 				for (let dep of deps) {
-					const source = opt.parseStationId(dep.station.id)
-					queue.push(queryLocations(dep.direction, source))
+					if (visitedTrips[dep.tripId]) continue
+					visitedTrips[dep.tripId] = true
+
+					const originId = opt.parseStationId(dep.station.id)
+					queue.push(queryStopovers(dep.direction, originId))
 				}
 				cb()
 			})
 			.catch(cb)
 		}
 
-		const queryJourneys = (source, target) => (cb) => {
+		const queryJourneys = (originId, target) => (cb) => {
 			nrOfRequests++
 			stats()
 
-			hafas.journeys(source, target, {stopovers: true, when: opt.when})
+			hafas.journeys(originId, target, {stopovers: true, when: opt.when})
 			.then((journeys) => {
 				for (let journey of journeys) {
-					for (let leg of journey.legs) {
-						if (!Array.isArray(leg.stopovers)) continue
-
-						for (let i = 1; i < leg.stopovers.length; i++) {
-							const st1 = leg.stopovers[i - 1]
-							const st2 = leg.stopovers[i]
-							const start = st1.arrival || st1.departure // todo: swap?
-							const end = st2.arrival || st2.departure
-							if (!start || !end) continue
-							const duration = new Date(end) - new Date(start)
-							onEdge(st1.stop, st2.stop, duration, leg.line)
-						}
-
-						const stations = leg.stopovers.map((dep) => dep.station)
-						onStations(stations)
-					}
+					for (let leg of journey.legs) onLeg(leg)
 				}
 				cb()
 			})
