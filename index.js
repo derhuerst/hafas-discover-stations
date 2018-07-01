@@ -119,6 +119,23 @@ const createWalk = (hafas) => {
 			.catch(cb)
 		}
 
+		const queryStopovers = (tripId, lineName, direction, originId) => (cb) => {
+			nrOfRequests++
+			stats()
+
+			hafas.journeyLeg(tripId, lineName)
+			.then((trip) => {
+				onLeg(trip)
+				cb()
+			})
+			.catch((err) => {
+				if (err && err.isHafasError) {
+					queryLocations(direction, originId)
+					cb()
+				} else cb(err)
+			})
+		}
+
 		const queryDepartures = (id) => (cb) => {
 			nrOfRequests++
 			stats()
@@ -129,8 +146,10 @@ const createWalk = (hafas) => {
 					if (visitedTrips[dep.tripId]) continue
 					visitedTrips[dep.tripId] = true
 
+					const {tripId, direction} = dep
+					const lineName = dep.line && dep.line.name || ''
 					const originId = opt.parseStationId(dep.station.id)
-					queue.push(queryStopovers(dep.direction, originId))
+					queue.push(queryStopovers(tripId, lineName, direction, originId))
 				}
 				cb()
 			})
