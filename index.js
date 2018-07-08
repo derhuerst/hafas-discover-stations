@@ -4,9 +4,11 @@ const {DateTime} = require('luxon')
 const {Readable} = require('stream')
 const createQueue = require('queue')
 
+const minute = 60 * 1000
+
 const defaults = {
 	concurrency: 2,
-	timeout: 10 * 10000,
+	timeout: 10 * 1000,
 	parseStationId: id => id
 }
 
@@ -48,6 +50,8 @@ const createWalk = (hafas) => {
 		})
 		const visitedStations = Object.create(null) // by station ID
 		const visitedTrips = Object.create(null) // by tripId
+		// by originId-targetId-when
+		const visitedJourneys = Object.create(null)
 		// by sourceID-targetID-duration-lineName
 		const visitedEdges = Object.create(null)
 		let nrOfStations = 0
@@ -72,7 +76,6 @@ const createWalk = (hafas) => {
 				nrOfStations++
 				out.push(station)
 				queue.push(queryDepartures(sId))
-				if (originId) queue.push(queryJourneys(originId, sId))
 			}
 			stats()
 		}
@@ -107,60 +110,72 @@ const createWalk = (hafas) => {
 			onStations(stations)
 		}
 
-		const queryLocations = (name, originId) => (cb) => {
+		const queryStopovers = (tripId, lineName, direction, when, originId) => (cb) => {
 			nrOfRequests++
 			stats()
 
-			hafas.locations(name, {addresses: false, poi: false})
-			.then((stations) => {
-				onStations(stations, originId)
-				cb()
-			})
-			.catch(cb)
-		}
-
-		const queryStopovers = (tripId, lineName, direction, originId) => (cb) => {
-			nrOfRequests++
-			stats()
-
-			hafas.journeyLeg(tripId, lineName)
+			hafas.journeyLeg(tripId, lineName, {when})
 			.then((trip) => {
 				onLeg(trip)
 				cb()
 			})
 			.catch((err) => {
-				if (err && err.isHafasError) {
-					queryLocations(direction, originId)
+				if (!err || !err.isHafasError) throw err
+
+				nrOfRequests++
+				stats()
+
+				return hafas.locations(direction, {addresses: false, poi: false, results: 3})
+				.then((targets) => {
+					onStations(targets)
+
+					for (let target of targets) {
+						const tId = opt.parseStationId(target.id)
+						const sig = [
+							originId, tId, Math.round(when / minute)
+						].join('-')
+						if (!visitedJourneys[sig]) {
+							visitedJourneys[sig] = true
+							queue.unshift(queryJourneys(originId, tId, when))
+						}
+					}
 					cb()
-				} else cb(err)
+				})
 			})
+			.catch(cb)
 		}
 
 		const queryDepartures = (id) => (cb) => {
 			nrOfRequests++
 			stats()
 
-			hafas.departures(id, {when: opt.when})
+			hafas.departures(id, {when: opt.when, remarks: false, duration: 60})
 			.then((deps) => {
 				for (let dep of deps) {
 					if (visitedTrips[dep.tripId]) continue
 					visitedTrips[dep.tripId] = true
 
 					const {tripId, direction} = dep
-					const lineName = dep.line && dep.line.name || ''
-					const originId = opt.parseStationId(dep.station.id)
-					queue.push(queryStopovers(tripId, lineName, direction, originId))
+					const lName = dep.line && dep.line.name || ''
+					const when = new Date(dep.when) - 2 * minute
+					const origId = opt.parseStationId(dep.station.id)
+					queue.unshift(queryStopovers(tripId, lName, direction, when, origId))
 				}
 				cb()
 			})
 			.catch(cb)
 		}
 
-		const queryJourneys = (originId, target) => (cb) => {
+		const queryJourneys = (originId, target, when) => (cb) => {
 			nrOfRequests++
 			stats()
 
-			hafas.journeys(originId, target, {stopovers: true, when: opt.when})
+			const t0 = Date.now()
+			hafas.journeys(originId, target, {
+				results: 1, startWithWalking: false,
+				departures: when,
+				stopovers: true, remarks: false
+			})
 			.then((journeys) => {
 				for (let journey of journeys) {
 					for (let leg of journey.legs) onLeg(leg)
