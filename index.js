@@ -1,5 +1,6 @@
 'use strict'
 
+const debug = require('debug')('hafas-discover-stations')
 const {DateTime} = require('luxon')
 const {Readable} = require('stream')
 const createQueue = require('queue')
@@ -111,6 +112,7 @@ const createWalk = (hafas) => {
 		}
 
 		const queryStopovers = (tripId, lineName, direction, when, originId) => (cb) => {
+			debug('stopovers', tripId, lineName, direction, 'originId', originId)
 			nrOfRequests++
 			stats()
 
@@ -122,6 +124,7 @@ const createWalk = (hafas) => {
 			.catch((err) => {
 				if (!err || !err.isHafasError) throw err
 
+				debug(tripId, 'using locations() + journeys() as fallback for journeyLeg()')
 				nrOfRequests++
 				stats()
 
@@ -146,6 +149,7 @@ const createWalk = (hafas) => {
 		}
 
 		const queryDepartures = (id) => (cb) => {
+			debug('departures', id)
 			nrOfRequests++
 			stats()
 
@@ -167,6 +171,7 @@ const createWalk = (hafas) => {
 		}
 
 		const queryJourneys = (originId, target, when) => (cb) => {
+			debug('journeys', originId, target, when)
 			nrOfRequests++
 			stats()
 

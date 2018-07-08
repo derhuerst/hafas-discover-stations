@@ -25,6 +25,7 @@
 	"dependencies": {
 		"ansi-diff-stream": "^1.2.0",
 		"ansi-escapes": "^3.0.0",
+		"debug": "^3.1.0",
 		"luxon": "^1.0.0",
 		"mri": "^1.1.0",
 		"ndjson": "^1.5.0",
