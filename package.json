@@ -28,11 +28,13 @@
 		"debug": "^3.1.0",
 		"luxon": "^1.0.0",
 		"mri": "^1.1.0",
-		"ndjson": "^1.5.0",
 		"queue": "^4.4.2",
 		"tty": "^1.0.1"
 	},
 	"devDependencies": {
+		"ndjson": "^1.5.0",
+		"pump": "^3.0.0",
+		"through2": "^2.0.3",
 		"vbb-hafas": "^5.0.0-alpha.5"
 	},
 	"peerDependencies": {
