@@ -116,7 +116,7 @@ const createWalk = (hafas) => {
 			nrOfRequests++
 			stats()
 
-			hafas.journeyLeg(tripId, lineName || 'foo', {when})
+			hafas.trip(tripId, lineName || 'foo', {when})
 			.then((trip) => {
 				onLeg(trip)
 				cb()
@@ -178,7 +178,7 @@ const createWalk = (hafas) => {
 			const t0 = Date.now()
 			hafas.journeys(originId, target, {
 				results: 1, startWithWalking: false,
-				departures: when,
+				departure: when,
 				stopovers: true, remarks: false
 			})
 			.then((journeys) => {
