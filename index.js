@@ -107,8 +107,8 @@ const createWalk = (hafas) => {
 				onEdge(st1.stop, st2.stop, duration, leg.line)
 			}
 
-			const stations = leg.stopovers.map(st => st.stop)
-			onStations(stations)
+			const stops = leg.stopovers.map(st => st.stop)
+			onStations(stops)
 		}
 
 		const queryStopovers = (tripId, lineName, direction, when, originId) => (cb) => {
@@ -162,7 +162,7 @@ const createWalk = (hafas) => {
 					const {tripId, direction} = dep
 					const lName = dep.line && dep.line.name || ''
 					const when = new Date(dep.when) - 2 * minute
-					const origId = opt.parseStationId(dep.station.id)
+					const origId = opt.parseStationId(dep.stop.id)
 					queue.unshift(queryStopovers(tripId, lName, direction, when, origId))
 				}
 				cb()
