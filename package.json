@@ -1,7 +1,7 @@
 {
 	"name": "hafas-discover-stations",
 	"description": "Pass in a HAFAS client, discover stations by querying departures.",
-	"version": "2.2.0",
+	"version": "2.2.1",
 	"main": "index.js",
 	"files": [
 		"index.js",
@@ -35,10 +35,10 @@
 		"ndjson": "^1.5.0",
 		"pump": "^3.0.0",
 		"through2": "^2.0.3",
-		"vbb-hafas": "^5.0.0-alpha.5"
+		"vbb-hafas": "^5.0.0"
 	},
 	"peerDependencies": {
-		"hafas-client": "^3.0.0-alpha.21"
+		"hafas-client": "^3.0.0"
 	},
 	"scripts": {
 		"test": "node test.js",
