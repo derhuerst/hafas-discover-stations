@@ -68,7 +68,7 @@ const createWalk = (hafas) => {
 			})
 		}
 
-		const onStations = (stations, originId) => {
+		const onStations = (stations) => {
 			for (let station of stations) {
 				const sId = opt.parseStationId(station.id)
 				if (visitedStations[sId]) return
@@ -155,6 +155,8 @@ const createWalk = (hafas) => {
 
 			hafas.departures(id, {when: opt.when, remarks: false, duration: 60})
 			.then((deps) => {
+				onStations(deps.map(dep => dep.stop))
+
 				for (let dep of deps) {
 					if (visitedTrips[dep.tripId]) continue
 					visitedTrips[dep.tripId] = true
