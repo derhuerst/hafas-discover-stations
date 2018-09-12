@@ -1,13 +1,14 @@
 'use strict'
 
-const vbb = require('vbb-hafas')
+const createHafas = require('vbb-hafas')
 const pump = require('pump')
 const through = require('through2')
 const ndjson = require('ndjson')
 
 const createWalk = require('.')
 
-const walk = createWalk(vbb)
+const hafas = createHafas('hafas-discover-stations example')
+const walk = createWalk(hafas)
 const friedrichstr = '900000100001'
 const stations = walk(friedrichstr, {concurrency: 8})
 
@@ -19,7 +20,7 @@ stations.on('hafas-error', (err) => {
 
 pump(
 	stations,
-	through.obj((s, _, cb) => cb(null, [s.id, s.name])),
+	through.obj((s, _, cb) => cb(null, [s.id, s.name, s.products])),
 	ndjson.stringify(),
 	process.stdout,
 	(err) => {
