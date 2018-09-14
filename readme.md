@@ -1,6 +1,6 @@
 # hafas-discover-stations
 
-**Pass in a HAFAS client, discover stations by querying departures.** It tries to find all stations that all trains known by the endpoint stop at.
+**Pass in a HAFAS client, discover stops/stations by querying departures.** It tries to find all stops/stations that all trains known by the endpoint stop at.
 
 [![npm version](https://img.shields.io/npm/v/hafas-discover-stations.svg)](https://www.npmjs.com/package/hafas-discover-stations)
 [![build status](https://img.shields.io/travis/derhuerst/hafas-discover-stations.svg)](https://travis-ci.org/derhuerst/hafas-discover-stations)
@@ -32,14 +32,14 @@ walk(friedrichstr)
 
 `walk()` returns a [readable stream](http://nodejs.org/api/stream.html#stream_class_stream_readable) [in object mode](https://nodejs.org/api/stream.html#stream_object_mode). It emits the following events:
 
-- `data`: a new station that has been discovered
+- `data`: a new stop/station that has been discovered
 - `stats`: an object with the following keys:
-	- `stations`: the number of stations discovered
+	- `stations`: the number of stops/stations discovered
 	- `requests`: the number of requests sent
-	- `queued`: the number of queued station IDs
-- `edge`: a connection between two stations, with the following keys:
-	- `source`: a [*Friendly Public Transport Format* `1.0.1` `station` object](https://github.com/public-transport/friendly-public-transport-format/blob/1.0.1/spec/readme.md#station)
-	- `target`: a [*Friendly Public Transport Format* `1.0.1` `station` object](https://github.com/public-transport/friendly-public-transport-format/blob/1.0.1/spec/readme.md#station)
+	- `queued`: the number of queued stop/station IDs
+- `edge`: a connection between two stops/stations, with the following keys:
+	- `source`: a [*Friendly Public Transport Format* `1.0.1`](https://github.com/public-transport/friendly-public-transport-format/blob/1.0.1/spec/readme.md) `stop`/`station` object
+	- `target`: a [*Friendly Public Transport Format* `1.0.1`](https://github.com/public-transport/friendly-public-transport-format/blob/1.0.1/spec/readme.md) `stop`/`station` object
 	- `duration`: time to travel, in milliseconds
 	- `line`: a [*Friendly Public Transport Format* `1.0.1` `line` object](https://github.com/public-transport/friendly-public-transport-format/blob/1.0.1/spec/readme.md#line)
 

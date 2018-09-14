@@ -49,33 +49,49 @@ const createWalk = (hafas) => {
 			concurrency: opt.concurrency,
 			timeout: opt.timeout
 		})
-		const visitedStations = Object.create(null) // by station ID
+		const visitedStopsAndStations = Object.create(null) // by stop/station ID
 		const visitedTrips = Object.create(null) // by tripId
 		// by originId-targetId-when
 		const visitedJourneys = Object.create(null)
 		// by sourceID-targetID-duration-lineName
 		const visitedEdges = Object.create(null)
-		let nrOfStations = 0
+		let nrOfStopsAndStations = 0
 		let nrOfEdges = 0
 		let nrOfRequests = 0
 
 		const stats = () => {
 			out.emit('stats', {
-				stations: nrOfStations,
+				stations: nrOfStopsAndStations, // todo: rename to `stopsAndStations` [breaking]
 				edges: nrOfEdges,
 				requests: nrOfRequests,
 				queued: queue.length
 			})
 		}
 
-		const onStations = (stations) => {
-			for (let station of stations) {
-				const sId = opt.parseStationId(station.id)
-				if (visitedStations[sId]) continue
-				visitedStations[sId] = true
+		const onStation = (station) => {
+			const sId = opt.parseStationId(station.id)
+			if (visitedStopsAndStations[sId]) return;
 
-				nrOfStations++
-				out.push(station)
+			visitedStopsAndStations[sId] = true
+			nrOfStopsAndStations++
+			out.push(station)
+			queue.push(queryDepartures(sId))
+		}
+
+		const onStops = (stops) => {
+			for (let stop of stops) {
+				if (stop.type === 'station') {
+					onStation(stop)
+					continue
+				}
+				if (stop.station) onStation(stop.station)
+
+				const sId = opt.parseStationId(stop.id)
+				if (visitedStopsAndStations[sId]) continue
+				visitedStopsAndStations[sId] = true
+
+				nrOfStopsAndStations++
+				out.push(stop)
 				queue.push(queryDepartures(sId))
 			}
 			stats()
@@ -108,7 +124,7 @@ const createWalk = (hafas) => {
 			}
 
 			const stops = leg.stopovers.map(st => st.stop)
-			onStations(stops)
+			onStops(stops)
 		}
 
 		const queryStopovers = (tripId, lineName, direction, when, originId) => (cb) => {
@@ -130,7 +146,7 @@ const createWalk = (hafas) => {
 
 				return hafas.locations(direction, {addresses: false, poi: false, results: 3})
 				.then((targets) => {
-					onStations(targets)
+					onStops(targets)
 
 					for (let target of targets) {
 						const tId = opt.parseStationId(target.id)
@@ -155,7 +171,7 @@ const createWalk = (hafas) => {
 
 			hafas.departures(id, {when: opt.when, remarks: false, duration: 60})
 			.then((deps) => {
-				onStations(deps.map(dep => dep.stop))
+				onStops(deps.map(dep => dep.stop))
 
 				for (let dep of deps) {
 					if (visitedTrips[dep.tripId]) continue

@@ -20,7 +20,7 @@ stations.on('hafas-error', (err) => {
 
 pump(
 	stations,
-	through.obj((s, _, cb) => cb(null, [s.id, s.name, s.products])),
+	through.obj((s, _, cb) => cb(null, [s.type, s.id, s.name, s.products])),
 	ndjson.stringify(),
 	process.stdout,
 	(err) => {
