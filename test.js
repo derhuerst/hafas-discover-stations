@@ -10,26 +10,24 @@ const walk = createWalk(hafas)
 const berlinFriedrichstr = '8011306'
 
 const data = walk(berlinFriedrichstr)
-data.on('error', assert.ifError)
+data.on('error', err => {
+	console.error(err)
+	process.exitCode = 1
+})
 
 let stations = 0
 const knownStations = Object.create(null)
 
 const onData = (stop) => {
 	assert.ok(stop)
-	assert.strictEqual(stop.type, 'stop')
+	assert.ok(stop.type === 'stop' || stop.type === 'station')
 	if (knownStations[stop.id]) assert.fail(stop.id + ' occured twice')
 
 	knownStations[stop.id] = true
 	stations++
-	if (stations >= 50) {
+	if (stations >= 200) {
 		data.removeListener('data', onData)
 		data.stop()
 	}
 }
 data.on('data', onData)
-
-data.once('error', (err) => {
-	console.error(err)
-	process.exit(1)
-})

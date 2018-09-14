@@ -37,12 +37,12 @@ walk(berlinFriedrichstr)
 - `stats`: an object with the following keys:
 	- `stations`: the number of stops/stations discovered
 	- `requests`: the number of requests sent
-	- `queued`: the number of queued stop/station IDs
+	- `queued`: the number of queued HAFAS requests
 - `edge`: a connection between two stops/stations, with the following keys:
-	- `source`: a [*Friendly Public Transport Format* `1.0.1`](https://github.com/public-transport/friendly-public-transport-format/blob/1.0.1/spec/readme.md) `stop`/`station` object
-	- `target`: a [*Friendly Public Transport Format* `1.0.1`](https://github.com/public-transport/friendly-public-transport-format/blob/1.0.1/spec/readme.md) `stop`/`station` object
+	- `source`: a [*Friendly Public Transport Format* `1.2.0`](https://github.com/public-transport/friendly-public-transport-format/blob/1.2.0/spec/readme.md) `stop`/`station` object
+	- `target`: a [*Friendly Public Transport Format* `1.2.0`](https://github.com/public-transport/friendly-public-transport-format/blob/1.2.0/spec/readme.md) `stop`/`station` object
 	- `duration`: time to travel, in milliseconds
-	- `line`: a [*Friendly Public Transport Format* `1.0.1` `line` object](https://github.com/public-transport/friendly-public-transport-format/blob/1.0.1/spec/readme.md#line)
+	- `line`: a [*Friendly Public Transport Format* `1.2.0` `line` object](https://github.com/public-transport/friendly-public-transport-format/blob/1.2.0/spec/readme.md#line)
 
 
 ## API

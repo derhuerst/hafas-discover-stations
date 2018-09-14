@@ -1,7 +1,7 @@
 {
 	"name": "hafas-discover-stations",
 	"description": "Pass in a HAFAS client, discover stations by querying departures.",
-	"version": "2.2.5",
+	"version": "2.2.7",
 	"main": "index.js",
 	"files": [
 		"index.js",

@@ -210,16 +210,18 @@ const createWalk = (hafas) => {
 
 		queue.on('error', (err) => {
 			if (err && err.isHafasError) out.emit('hafas-error', err)
-			else out.emit('error', err)
+			else queue.end(err)
 		})
-		queue.on('end', () => out.push(null))
+		queue.on('end', (err) => {
+			if (err) out.destroy(err)
+			else out.destroy()
+		})
 		out.stop = () => queue.end()
 
 		setImmediate(() => {
 			queue.push(queryDepartures(first))
 			queue.start()
 		})
-
 		return out
 	}
 	return walk
