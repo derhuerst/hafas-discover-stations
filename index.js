@@ -71,7 +71,7 @@ const createWalk = (hafas) => {
 		const onStations = (stations) => {
 			for (let station of stations) {
 				const sId = opt.parseStationId(station.id)
-				if (visitedStations[sId]) return
+				if (visitedStations[sId]) continue
 				visitedStations[sId] = true
 
 				nrOfStations++
@@ -87,7 +87,7 @@ const createWalk = (hafas) => {
 				opt.parseStationId(target.id),
 				duration, line.name
 			].join('-')
-			if (visitedEdges[signature]) return
+			if (visitedEdges[signature]) return;
 			visitedEdges[signature] = true
 
 			nrOfEdges++
