@@ -1,15 +1,15 @@
 'use strict'
 
-const createHafas = require('vbb-hafas')
+const createHafas = require('db-hafas')
 const assert = require('assert')
 
 const createWalk = require('.')
 
 const hafas = createHafas('hafas-discover-stations test')
 const walk = createWalk(hafas)
-const friedrichstr = '900000100001'
+const berlinFriedrichstr = '8011306'
 
-const data = walk(friedrichstr)
+const data = walk(berlinFriedrichstr)
 data.on('error', assert.ifError)
 
 let stations = 0

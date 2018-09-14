@@ -20,12 +20,13 @@ npm install hafas-discover-stations
 
 ```js
 const createWalk = require('hafas-discover-stations')
-const vbb = require('vbb-hafas')
+const createHafas = require('db-hafas')
 
-const walk = createWalk(vbb)
+const hafas = createHafas('my-awesome-program')
+const walk = createWalk(db)
 
-const friedrichstr = '900000100001' // where to start
-walk(friedrichstr)
+const berlinFriedrichstr = '8011306' // where to start
+walk(berlinFriedrichstr)
 .on('data', console.log)
 .on('error', console.error)
 ```
