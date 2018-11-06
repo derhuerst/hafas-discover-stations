@@ -34,7 +34,7 @@
 	"devDependencies": {
 		"db-hafas": "^3.0.1",
 		"pump": "^3.0.0",
-		"through2": "^2.0.3"
+		"through2": "^3.0.0"
 	},
 	"peerDependencies": {
 		"hafas-client": "^3.0.0"
