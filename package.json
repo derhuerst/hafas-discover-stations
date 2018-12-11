@@ -29,7 +29,7 @@
 		"luxon": "^1.0.0",
 		"mri": "^1.1.0",
 		"ndjson": "^1.5.0",
-		"queue": "^4.4.2"
+		"queue": "^5.0.0"
 	},
 	"devDependencies": {
 		"db-hafas": "^3.0.1",
