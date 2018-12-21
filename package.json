@@ -1,7 +1,7 @@
 {
 	"name": "hafas-discover-stations",
 	"description": "Pass in a HAFAS client, discover stations by querying departures.",
-	"version": "2.2.7",
+	"version": "2.2.8",
 	"main": "index.js",
 	"files": [
 		"index.js",
@@ -29,7 +29,7 @@
 		"luxon": "^1.0.0",
 		"mri": "^1.1.0",
 		"ndjson": "^1.5.0",
-		"queue": "^4.4.2"
+		"queue": "^5.0.0"
 	},
 	"devDependencies": {
 		"db-hafas": "^3.0.1",
