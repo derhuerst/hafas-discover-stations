@@ -3,7 +3,7 @@
 const mri = require('mri')
 const {isatty} = require('tty')
 const differ = require('ansi-diff-stream')
-const esc = require('ansi-escapes')
+const pump = require('pump')
 const ndjson = require('ndjson')
 
 const run = (walk, config) => {
@@ -29,20 +29,11 @@ const run = (walk, config) => {
 		process.exit(0)
 	}
 
-	const first = argv._[0] ? argv._[0] + '' : config.first
-
-	const data = walk(first)
-	data
-	.on('error', (err) => {
-		console.error(err.message || err + '')
-		process.exitCode = 1
-	})
-	.pipe(ndjson.stringify())
-	.pipe(process.stdout)
+	const firstStation = argv._[0] ? argv._[0] + '' : config.first
+	const data = walk(firstStation)
 
 	if (!argv.s && !argv.silent) {
 		const clearReports = isatty(process.stderr.fd) && !isatty(process.stdout.fd)
-
 
 		let reporter = process.stderr
 		if (clearReports) {
@@ -60,6 +51,13 @@ const run = (walk, config) => {
 		}
 		data.on('stats', report)
 	}
+
+	return new Promise((resolve, reject) => {
+		pump(data, ndjson.stringify(), process.stdout, (err) => {
+			if (err) reject(err)
+			else resolve()
+		})
+	})
 }
 
 module.exports = run
