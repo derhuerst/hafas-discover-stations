@@ -6,7 +6,7 @@
 	"files": [
 		"index.js",
 		"bin.js",
-		"example.js"
+		"examples"
 	],
 	"keywords": [
 		"hafas",

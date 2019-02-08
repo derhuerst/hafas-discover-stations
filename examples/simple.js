@@ -5,7 +5,7 @@ const pump = require('pump')
 const through = require('through2')
 const ndjson = require('ndjson')
 
-const createWalk = require('.')
+const createWalk = require('..')
 
 const hafas = createHafas('hafas-discover-stations example')
 const walk = createWalk(hafas)
