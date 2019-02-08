@@ -1,11 +1,12 @@
 {
 	"name": "hafas-discover-stations",
 	"description": "Pass in a HAFAS client, discover stations by querying departures.",
-	"version": "2.2.8",
+	"version": "2.2.9",
 	"main": "index.js",
 	"files": [
 		"index.js",
-		"bin.js"
+		"bin.js",
+		"example.js"
 	],
 	"keywords": [
 		"hafas",
@@ -24,7 +25,6 @@
 	},
 	"dependencies": {
 		"ansi-diff-stream": "^1.2.0",
-		"ansi-escapes": "^3.0.0",
 		"debug": "^4.0.0",
 		"luxon": "^1.0.0",
 		"mri": "^1.1.0",

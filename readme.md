@@ -23,7 +23,7 @@ const createWalk = require('hafas-discover-stations')
 const createHafas = require('db-hafas')
 
 const hafas = createHafas('my-awesome-program')
-const walk = createWalk(db)
+const walk = createWalk(hafas)
 
 const berlinFriedrichstr = '8011306' // where to start
 walk(berlinFriedrichstr)
