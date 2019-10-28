@@ -9,8 +9,8 @@ const createReqCounter = require('./lib/req-counter')
 const minute = 60 * 1000
 
 const defaults = {
-	concurrency: 2,
-	timeout: 10 * 1000,
+	concurrency: 4,
+	timeout: 30 * 1000,
 	parseStationId: id => id,
 	stationLines: false
 }
