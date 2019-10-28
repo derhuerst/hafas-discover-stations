@@ -41,12 +41,18 @@ const run = (walk, config) => {
 			reporter.pipe(process.stderr)
 		}
 
-		const report = ({requests, stations, edges, queued}) => {
+		const report = (stats) => {
+			const {
+				totalReqs,
+				stopsAndStations: nr,
+				edges,
+				queuedReqs
+			} = stats
 			reporter.write([
-				requests + (requests === 1 ? ' request' : ' requests'),
-				stations + (stations === 1 ? ' station' : ' stations'),
+				totalReqs + (totalReqs === 1 ? ' request' : ' requests'),
+				nr + (nr === 1 ? ' station' : ' stations'),
 				edges + (edges === 1 ? ' edge' : ' edges'),
-				queued + ' queued'
+				queuedReqs + ' queued'
 			].join(', ') + (clearReports ? '' : '\n'))
 		}
 		data.on('stats', report)

@@ -5,6 +5,7 @@
 	"main": "index.js",
 	"files": [
 		"index.js",
+		"lib",
 		"bin.js",
 		"examples"
 	],
@@ -26,6 +27,7 @@
 	"dependencies": {
 		"ansi-diff-stream": "^1.2.0",
 		"debug": "^4.0.0",
+		"live-moving-average": "^0.1.1",
 		"luxon": "^1.0.0",
 		"mri": "^1.1.0",
 		"ndjson": "^1.5.0",

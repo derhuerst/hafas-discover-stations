@@ -35,9 +35,11 @@ walk(berlinFriedrichstr)
 
 - `data`: a new stop/station that has been discovered
 - `stats`: an object with the following keys:
-	- `stations`: the number of stops/stations discovered
-	- `requests`: the number of requests sent
-	- `queued`: the number of queued HAFAS requests
+	- `stopsAndStations`: the number of stops/stations discovered
+	- `edges`: the number of edges discovered
+	- `totalReqs`: the number of requests sent
+	- `avgReqDuration`: the average duration of the last 30 requests
+	- `queuedReqs`: the number of queued requests
 - `edge`: a connection between two stops/stations, with the following keys:
 	- `source`: a [*Friendly Public Transport Format* `1.2.0`](https://github.com/public-transport/friendly-public-transport-format/blob/1.2.0/spec/readme.md) `stop`/`station` object
 	- `target`: a [*Friendly Public Transport Format* `1.2.0`](https://github.com/public-transport/friendly-public-transport-format/blob/1.2.0/spec/readme.md) `stop`/`station` object
@@ -56,6 +58,7 @@ walk(stationId, [opt])
 - `concurrency`: number of requests run in parallel – default: `2`
 - `timeout`: timeout for a single job in milliseconds – default: `10000`
 - `parseStationId`: an optional function to process station IDs – default: `id => id`
+- `stationLines`: Query lines of stops/stations? – default: `false`
 
 
 ## Contributing

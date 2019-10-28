@@ -4,13 +4,15 @@ const debug = require('debug')('hafas-discover-stations')
 const {DateTime} = require('luxon')
 const {Readable} = require('stream')
 const createQueue = require('queue')
+const createReqCounter = require('./lib/req-counter')
 
 const minute = 60 * 1000
 
 const defaults = {
 	concurrency: 2,
 	timeout: 10 * 1000,
-	parseStationId: id => id
+	parseStationId: id => id,
+	stationLines: false
 }
 
 const createWalk = (hafas) => {
@@ -59,12 +61,14 @@ const createWalk = (hafas) => {
 		let nrOfEdges = 0
 		let nrOfRequests = 0
 
+		// todo: count failed requests
+		const reqCounter = createReqCounter()
 		const stats = () => {
 			out.emit('stats', {
-				stations: nrOfStopsAndStations, // todo: rename to `stopsAndStations` [breaking]
+				stopsAndStations: nrOfStopsAndStations,
 				edges: nrOfEdges,
-				requests: nrOfRequests,
-				queued: queue.length
+				...reqCounter.getStats(),
+				queuedReqs: queue.length
 			})
 		}
 
@@ -129,23 +133,26 @@ const createWalk = (hafas) => {
 
 		const queryStopovers = (tripId, lineName, direction, when, originId) => (cb) => {
 			debug('stopovers', tripId, lineName, direction, 'originId', originId)
-			nrOfRequests++
-			stats()
 
-			hafas.trip(tripId, lineName || 'foo', {when})
+			const t0 = Date.now()
+			hafas.trip(tripId, lineName || 'foo', {when, stationLines: !!opt.stationLines})
 			.then((trip) => {
+				reqCounter.onReqTime(Date.now() - t0)
+				stats()
+
 				onLeg(trip)
 				cb()
 			})
 			.catch((err) => {
 				if (!err || !err.isHafasError) throw err
-
 				debug(tripId, 'using locations() + journeys() as fallback for journeyLeg()')
-				nrOfRequests++
-				stats()
 
-				return hafas.locations(direction, {addresses: false, poi: false, results: 3})
+				const t0 = Date.now()
+				return hafas.locations(direction, {addresses: false, poi: false, results: 3, stationLines: !!opt.stationLines})
 				.then((targets) => {
+					reqCounter.onReqTime(Date.now() - t0)
+					stats()
+
 					onStops(targets)
 
 					for (let target of targets) {
@@ -166,11 +173,13 @@ const createWalk = (hafas) => {
 
 		const queryDepartures = (id) => (cb) => {
 			debug('departures', id)
-			nrOfRequests++
-			stats()
 
-			hafas.departures(id, {when: opt.when, remarks: false, duration: 60})
+			const t0 = Date.now()
+			hafas.departures(id, {when: opt.when, remarks: false, duration: 60, stationLines: !!opt.stationLines})
 			.then((deps) => {
+				reqCounter.onReqTime(Date.now() - t0)
+				stats()
+
 				onStops(deps.map(dep => dep.stop))
 
 				for (let dep of deps) {
@@ -190,16 +199,17 @@ const createWalk = (hafas) => {
 
 		const queryJourneys = (originId, target, when) => (cb) => {
 			debug('journeys', originId, target, when)
-			nrOfRequests++
-			stats()
 
 			const t0 = Date.now()
 			hafas.journeys(originId, target, {
 				results: 1, startWithWalking: false,
 				departure: when,
-				stopovers: true, remarks: false
+				stopovers: true, remarks: false, stationLines: !!opt.stationLines
 			})
 			.then((journeys) => {
+				reqCounter.onReqTime(Date.now() - t0)
+				stats()
+
 				for (let journey of journeys) {
 					for (let leg of journey.legs) onLeg(leg)
 				}
