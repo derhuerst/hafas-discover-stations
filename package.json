@@ -21,7 +21,7 @@
 	"bugs": "https://github.com/derhuerst/hafas-discover-stations/issues",
 	"license": "ISC",
 	"engines": {
-		"node": ">=6"
+		"node": ">=8"
 	},
 	"dependencies": {
 		"ansi-diff-stream": "^1.2.0",
@@ -32,12 +32,12 @@
 		"queue": "^6.0.0"
 	},
 	"devDependencies": {
-		"db-hafas": "^3.0.1",
+		"db-hafas": "^4.0.0",
 		"pump": "^3.0.0",
 		"through2": "^3.0.0"
 	},
 	"peerDependencies": {
-		"hafas-client": "^3.0.0"
+		"hafas-client": "^4.0.0"
 	},
 	"scripts": {
 		"test": "node test.js",
