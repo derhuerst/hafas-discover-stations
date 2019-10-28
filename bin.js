@@ -13,14 +13,14 @@ const run = (walk, config) => {
 
 	if (argv.h || argv.help) {
 		process.stdout.write(`\
-	${config.description}
+${config.description}
 
-	Usage:
-		${config.name} [first-station] > stations.ndjson
+Usage:
+	${config.name} [first-station] > stations.ndjson
 
-	Options:
-		-s, --silent	Don't show progress reports on stderr.
-	`)
+Options:
+	-s, --silent	Don't show progress reports on stderr.
+`)
 		process.exit(0)
 	}
 

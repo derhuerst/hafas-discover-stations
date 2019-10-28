@@ -12,7 +12,7 @@ const berlinFriedrichstr = '8011306'
 const data = walk(berlinFriedrichstr)
 data.on('error', err => {
 	console.error(err)
-	process.exitCode = 1
+	process.exit(1)
 })
 
 let stations = 0
@@ -24,10 +24,12 @@ const onData = (stop) => {
 	if (knownStations[stop.id]) assert.fail(stop.id + ' occured twice')
 
 	knownStations[stop.id] = true
+
 	stations++
 	if (stations >= 200) {
 		data.removeListener('data', onData)
 		data.stop()
+		console.info(`Discovered ${stations} stations. ✔︎`)
 	}
 }
 data.on('data', onData)
