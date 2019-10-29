@@ -1,7 +1,7 @@
 {
 	"name": "hafas-discover-stations",
 	"description": "Pass in a HAFAS client, discover stations by querying departures.",
-	"version": "3.0.0",
+	"version": "3.0.1",
 	"main": "index.js",
 	"files": [
 		"index.js",
@@ -11,6 +11,7 @@
 	],
 	"keywords": [
 		"hafas",
+		"hafas-client",
 		"public transport",
 		"transit",
 		"stations",

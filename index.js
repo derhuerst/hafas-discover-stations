@@ -206,7 +206,7 @@ const createWalk = (hafas) => {
 				departure: when,
 				stopovers: true, remarks: false, stationLines: !!opt.stationLines
 			})
-			.then((journeys) => {
+			.then(({journeys}) => {
 				reqCounter.onReqTime(Date.now() - t0)
 				stats()
 
