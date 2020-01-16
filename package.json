@@ -34,7 +34,7 @@
 		"queue": "^6.0.0"
 	},
 	"devDependencies": {
-		"db-hafas": "^4.0.0",
+		"db-hafas": "^5.0.0",
 		"pump": "^3.0.0",
 		"through2": "^3.0.0"
 	},
