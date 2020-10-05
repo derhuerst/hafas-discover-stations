@@ -12,7 +12,7 @@ const defaults = {
 	concurrency: 4,
 	timeout: 30 * 1000,
 	parseStationId: id => id,
-	stationLines: false
+	linesOfStops: false,
 }
 
 const createWalk = (hafas) => {
@@ -135,7 +135,10 @@ const createWalk = (hafas) => {
 			debug('stopovers', tripId, lineName, direction, 'originId', originId)
 
 			const t0 = Date.now()
-			hafas.trip(tripId, lineName || 'foo', {when, stationLines: !!opt.stationLines})
+			hafas.trip(tripId, lineName || 'foo', {
+				when,
+				linesOfStops: !!opt.linesOfStops,
+			})
 			.then((trip) => {
 				reqCounter.onReqTime(Date.now() - t0)
 				stats()
@@ -148,7 +151,11 @@ const createWalk = (hafas) => {
 				debug(tripId, 'using locations() + journeys() as fallback for journeyLeg()')
 
 				const t0 = Date.now()
-				return hafas.locations(direction, {addresses: false, poi: false, results: 3, stationLines: !!opt.stationLines})
+				return hafas.locations(direction, {
+					addresses: false, poi: false,
+					results: 3,
+					linesOfStops: !!opt.linesOfStops,
+				})
 				.then((targets) => {
 					reqCounter.onReqTime(Date.now() - t0)
 					stats()
@@ -175,7 +182,12 @@ const createWalk = (hafas) => {
 			debug('departures', id)
 
 			const t0 = Date.now()
-			hafas.departures(id, {when: opt.when, remarks: false, duration: 60, stationLines: !!opt.stationLines})
+			hafas.departures(id, {
+				when: opt.when,
+				duration: 60,
+				remarks: false,
+				linesOfStops: !!opt.linesOfStops,
+			})
 			.then((deps) => {
 				reqCounter.onReqTime(Date.now() - t0)
 				stats()
@@ -204,7 +216,8 @@ const createWalk = (hafas) => {
 			hafas.journeys(originId, target, {
 				results: 1, startWithWalking: false,
 				departure: when,
-				stopovers: true, remarks: false, stationLines: !!opt.stationLines
+				stopovers: true, remarks: false,
+				linesOfStops: !!opt.linesOfStops,
 			})
 			.then(({journeys}) => {
 				reqCounter.onReqTime(Date.now() - t0)
