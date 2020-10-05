@@ -21,12 +21,12 @@ Usage:
 Options:
 	-s, --silent	Don't show progress reports on stderr.
 `)
-		process.exit(0)
+		return;
 	}
 
 	if (argv.v || argv.version) {
 		process.stdout.write(config.name + ' ' + config.version + '\n')
-		process.exit(0)
+		return;
 	}
 
 	const firstStation = argv._[0] ? argv._[0] + '' : config.first
