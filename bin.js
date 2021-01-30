@@ -31,6 +31,11 @@ Options:
 	}
 
 	const firstStation = argv._[0] ? argv._[0] + '' : config.first
+	if (!firstStation) {
+		console.error('Missing first-station argument.')
+		process.exit(1)
+	}
+
 	const data = walk(firstStation)
 
 	if (!argv.s && !argv.silent) {
