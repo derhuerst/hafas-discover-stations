@@ -3,6 +3,7 @@
 const mri = require('mri')
 const {isatty} = require('tty')
 const differ = require('ansi-diff-stream')
+const ms = require('ms')
 const pump = require('pump')
 const ndjson = require('ndjson')
 
@@ -45,14 +46,17 @@ Options:
 			const {
 				totalReqs,
 				stopsAndStations: nr,
+				stopsAndStationsPerSecond: nrPerS,
 				edges,
-				queuedReqs
+				queuedReqs,
+				eta,
 			} = stats
 			reporter.write([
 				totalReqs + (totalReqs === 1 ? ' request' : ' requests'),
-				nr + (nr === 1 ? ' station' : ' stations'),
+				nr + (nr === 1 ? ' station' : ' stations') + ` (${Math.round(nrPerS)}/s)`,
 				edges + (edges === 1 ? ' edge' : ' edges'),
-				queuedReqs + ' queued'
+				queuedReqs + ' queued',
+				'ETA ' + (eta === Infinity ? '∞' : ms(eta * 1000)),
 			].join(', ') + (clearReports ? '' : '\n'))
 		}
 		data.on('stats', report)

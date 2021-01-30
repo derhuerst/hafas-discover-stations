@@ -4,6 +4,7 @@ const debug = require('debug')('hafas-discover-stations')
 const {DateTime} = require('luxon')
 const {Readable} = require('stream')
 const createQueue = require('queue')
+const speedometer = require('speedometer')
 const createReqCounter = require('./lib/req-counter')
 
 const minute = 60 * 1000
@@ -57,6 +58,8 @@ const createWalk = (hafas) => {
 		const visitedJourneys = Object.create(null)
 		// by sourceID-targetID-duration-lineName
 		const visitedEdges = Object.create(null)
+		const stopsAndStationsSpeed = speedometer(30) // 30s window
+		let stopsAndStationsPerSecond = 0
 		let nrOfStopsAndStations = 0
 		let nrOfEdges = 0
 		let nrOfRequests = 0
@@ -66,9 +69,14 @@ const createWalk = (hafas) => {
 		const stats = () => {
 			out.emit('stats', {
 				stopsAndStations: nrOfStopsAndStations,
+				stopsAndStationsPerSecond,
 				edges: nrOfEdges,
 				...reqCounter.getStats(),
-				queuedReqs: queue.length
+				queuedReqs: queue.length,
+				eta: (stopsAndStationsPerSecond === 0
+					? Infinity
+					: Math.ceil(queue.length / stopsAndStationsPerSecond)
+				),
 			})
 		}
 
@@ -80,6 +88,7 @@ const createWalk = (hafas) => {
 			nrOfStopsAndStations++
 			out.push(station)
 			queue.push(queryDepartures(sId))
+			stopsAndStationsPerSecond = stopsAndStationsSpeed(1)
 		}
 
 		const onStops = (stops) => {
@@ -97,6 +106,7 @@ const createWalk = (hafas) => {
 				nrOfStopsAndStations++
 				out.push(stop)
 				queue.push(queryDepartures(sId))
+				stopsAndStationsPerSecond = stopsAndStationsSpeed(1)
 			}
 			stats()
 		}
