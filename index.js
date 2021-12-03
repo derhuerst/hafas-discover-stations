@@ -35,7 +35,12 @@ const createWalk = (hafas) => {
 		throw new Error('hafas.journeys must be a function')
 	}
 
-	const walk = (first, opt = {}) => {
+	const walk = (first = null, opt = {}) => {
+		if (first !== null && 'string' !== typeof first) {
+			opt = first
+			first = null
+		}
+
 		opt = Object.assign({}, defaults, opt)
 		if (!opt.when) {
 			// beginning of next week 10 am
@@ -267,7 +272,7 @@ const createWalk = (hafas) => {
 		}
 		out.queueStopId = queueStopId
 
-		setImmediate(queueStopId, first)
+		if (first) setImmediate(queueStopId, first)
 		return out
 	}
 	return walk
