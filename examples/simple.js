@@ -1,13 +1,14 @@
 'use strict'
 
-const createHafas = require('db-hafas')
+const createHafas = require('hafas-client')
+const dbProfile = require('hafas-client/p/db')
 const pump = require('pump')
 const through = require('through2')
 const ndjson = require('ndjson')
 
 const createWalk = require('..')
 
-const hafas = createHafas('hafas-discover-stations example')
+const hafas = createHafas(dbProfile, 'hafas-discover-stations example')
 const walk = createWalk(hafas)
 const berlinFriedrichstr = '8011306'
 const stations = walk(berlinFriedrichstr, {concurrency: 8})

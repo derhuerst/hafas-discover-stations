@@ -37,8 +37,8 @@
 		"speedometer": "^1.1.0"
 	},
 	"devDependencies": {
-		"db-hafas": "^5.0.2",
 		"eslint": "^7.18.0",
+		"hafas-client": "^5.21.1",
 		"pump": "^3.0.0",
 		"through2": "^4.0.2"
 	},

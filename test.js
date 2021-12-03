@@ -1,11 +1,12 @@
 'use strict'
 
-const createHafas = require('db-hafas')
+const createHafas = require('hafas-client')
+const dbProfile = require('hafas-client/p/db')
 const assert = require('assert')
 
 const createWalk = require('.')
 
-const hafas = createHafas('hafas-discover-stations test')
+const hafas = createHafas(dbProfile, 'hafas-discover-stations test')
 const walk = createWalk(hafas)
 const berlinFriedrichstr = '8011306'
 
