@@ -260,10 +260,14 @@ const createWalk = (hafas) => {
 		})
 		out.stop = () => queue.end()
 
-		setImmediate(() => {
-			queue.push(queryDepartures(first))
-			queue.start()
-		})
+		const queueStopId = (stopId) => {
+			if (visitedStopsAndStations[stopId]) return;
+			queue.push(queryDepartures(stopId))
+			if (!queue.running) queue.start()
+		}
+		out.queueStopId = queueStopId
+
+		setImmediate(queueStopId, first)
 		return out
 	}
 	return walk
