@@ -265,8 +265,12 @@ const createWalk = (hafas) => {
 		})
 		out.stop = () => queue.end()
 
+		const markAsVisited = (stopId) => {
+			visitedStopsAndStations[stopId] = true
+		}
+		out.markAsVisited = markAsVisited
+
 		const queueStopId = (stopId) => {
-			if (visitedStopsAndStations[stopId]) return;
 			queue.push(queryDepartures(stopId))
 			if (!queue.running) queue.start()
 		}
