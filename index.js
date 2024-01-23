@@ -68,7 +68,6 @@ const createWalkAndDiscoverStations = (hafas) => {
 		let stopsAndStationsPerSecond = 0
 		let nrOfStopsAndStations = 0
 		let nrOfEdges = 0
-		let nrOfRequests = 0
 
 		// todo: count failed requests
 		const reqCounter = createReqCounter()
