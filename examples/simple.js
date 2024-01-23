@@ -1,6 +1,6 @@
 import createHafas from 'hafas-client'
 import dbProfile from 'hafas-client/p/db/index.js'
-import pump from 'pump'
+import {pipeline} from 'node:stream/promises'
 import through from 'through2'
 import ndjson from 'ndjson'
 import {createWalkAndDiscoverStations as createWalk} from '../index.js'
@@ -16,13 +16,9 @@ stations.on('hafas-error', (err) => {
 	else console.error(err && err.message || (err + ''))
 })
 
-pump(
+await pipeline(
 	stations,
 	through.obj((s, _, cb) => cb(null, [s.type, s.id, s.name, s.products])),
 	ndjson.stringify(),
 	process.stdout,
-	(err) => {
-		console.error(err)
-		process.exit(1)
-	}
 )

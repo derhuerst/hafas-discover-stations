@@ -2,7 +2,7 @@ import mri from 'mri'
 import {isatty} from 'node:tty'
 import differ from 'ansi-diff-stream'
 import ms from 'ms'
-import pump from 'pump'
+import {pipeline} from 'node:stream/promises'
 import ndjson from 'ndjson'
 
 const runCli = async (walk, config) => {
@@ -65,12 +65,11 @@ Options:
 		data.on('stats', report)
 	}
 
-	return new Promise((resolve, reject) => {
-		pump(data, ndjson.stringify(), process.stdout, (err) => {
-			if (err) reject(err)
-			else resolve()
-		})
-	})
+	await pipeline(
+		data,
+		ndjson.stringify(),
+		process.stdout,
+	)
 }
 
 export {
