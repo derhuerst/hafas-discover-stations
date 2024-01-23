@@ -1,7 +1,7 @@
 import createDebug from 'debug'
 import {DateTime} from 'luxon'
 import {Readable} from 'node:stream'
-import createQueue from 'queue'
+import Queue from 'queue'
 import speedometer from 'speedometer'
 import {createRequestCounter as createReqCounter} from './lib/req-counter.js'
 
@@ -54,7 +54,7 @@ const createWalkAndDiscoverStations = (hafas) => {
 			objectMode: true,
 			read: () => {}
 		})
-		const queue = createQueue({
+		const queue = new Queue({
 			concurrency: opt.concurrency,
 			timeout: opt.timeout
 		})
@@ -255,15 +255,33 @@ const createWalkAndDiscoverStations = (hafas) => {
 			.catch(cb)
 		}
 
-		queue.on('error', (err) => {
-			if (err && err.isHafasError) out.emit('hafas-error', err)
-			else queue.end(err)
+		queue.addEventListener('error', (ev) => {
+			const {error: err} = ev.detail || {}
+			debug('queue error', err)
+			if (err) {
+				if (err.isHafasError) {
+					out.emit('hafas-error', err)
+				} else {
+					queue.end(err)
+				}
+			} else {
+				queue.end()
+			}
 		})
-		queue.on('end', (err) => {
+		queue.addEventListener('end', (ev) => {
+			const {error: err} = ev.detail || {}
+			debug('queue end', 'error?', err)
 			if (err) out.destroy(err)
-			else out.destroy()
+			else {
+				setTimeout(() => {
+					out.push(null) // end the stream
+				}, 0)
+			}
 		})
-		out.stop = () => queue.end()
+		out.stop = () => {
+			debug('flushing the queue')
+			queue.end()
+		}
 
 		const markAsVisited = (stopId) => {
 			visitedStopsAndStations[stopId] = true
