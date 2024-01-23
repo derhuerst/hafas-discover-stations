@@ -1,21 +1,16 @@
 #!/usr/bin/env node
-'use strict'
 
-const createHafas = require('hafas-client')
-const dbProfile = require('hafas-client/p/db')
-const createWalk = require('..')
-const run = require('../bin')
+import createHafas from 'hafas-client'
+import dbProfile from 'hafas-client/p/db/index.js'
+import {createWalkAndDiscoverStations as createWalk} from '../index.js'
+import {runCli as run} from '../bin.js'
 const pkg = require('../package.json')
 
 const hafas = createHafas(dbProfile, 'hafas-discover-stations example')
 const walk = createWalk(hafas)
 
-run(walk, {
+await run(walk, {
 	name: pkg.name,
 	description: pkg.name,
-	concurrency: 8
-})
-.catch((err) => {
-	console.error(err)
-	process.exit(1)
+	concurrency: 8,
 })

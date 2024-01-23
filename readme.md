@@ -18,17 +18,17 @@ npm install hafas-discover-stations
 ## Usage
 
 ```js
-const createWalk = require('hafas-discover-stations')
-const createHafas = require('hafas-client')
-const dbProfile = require('hafas-client/p/db')
+import {createWalkAndDiscoverStations as createWalk} from 'hafas-discover-stations'
+import createHafas from 'hafas-client'
+import dbProfile from 'hafas-client/p/db/index.js'
 
 const hafas = createHafas(dbProfile, 'my-awesome-program')
 const walk = createWalk(hafas)
 
 const berlinFriedrichstr = '8011306' // where to start
-walk(berlinFriedrichstr)
-.on('data', console.log)
-.on('error', console.error)
+for await (const stopOrStation of walk(berlinFriedrichstr)) {
+	console.log(stopOrStation)
+}
 ```
 
 `walk()` returns a [readable stream](http://nodejs.org/api/stream.html#stream_class_stream_readable) [in object mode](https://nodejs.org/api/stream.html#stream_object_mode). It emits the following events:

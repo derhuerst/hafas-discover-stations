@@ -1,13 +1,11 @@
-'use strict'
+import mri from 'mri'
+import {isatty} from 'node:tty'
+import differ from 'ansi-diff-stream'
+import ms from 'ms'
+import pump from 'pump'
+import ndjson from 'ndjson'
 
-const mri = require('mri')
-const {isatty} = require('tty')
-const differ = require('ansi-diff-stream')
-const ms = require('ms')
-const pump = require('pump')
-const ndjson = require('ndjson')
-
-const run = (walk, config) => {
+const runCli = async (walk, config) => {
 	const argv = mri(process.argv.slice(2), {
 		boolean: ['help', 'h', 'version', 'v', 'silent', 's']
 	})
@@ -75,4 +73,6 @@ Options:
 	})
 }
 
-module.exports = run
+export {
+	runCli,
+}

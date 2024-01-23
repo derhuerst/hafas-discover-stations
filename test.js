@@ -1,10 +1,7 @@
-'use strict'
-
-const createHafas = require('hafas-client')
-const dbProfile = require('hafas-client/p/db')
-const assert = require('assert')
-
-const createWalk = require('.')
+import createHafas from 'hafas-client'
+import dbProfile from 'hafas-client/p/db/index.js'
+import * as assert from 'assert'
+import {createWalkAndDiscoverStations as createWalk} from './index.js'
 
 const hafas = createHafas(dbProfile, 'hafas-discover-stations test')
 const walk = createWalk(hafas)

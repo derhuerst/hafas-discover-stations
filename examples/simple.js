@@ -1,12 +1,9 @@
-'use strict'
-
-const createHafas = require('hafas-client')
-const dbProfile = require('hafas-client/p/db')
-const pump = require('pump')
-const through = require('through2')
-const ndjson = require('ndjson')
-
-const createWalk = require('..')
+import createHafas from 'hafas-client'
+import dbProfile from 'hafas-client/p/db/index.js'
+import pump from 'pump'
+import through from 'through2'
+import ndjson from 'ndjson'
+import {createWalkAndDiscoverStations as createWalk} from '../index.js'
 
 const hafas = createHafas(dbProfile, 'hafas-discover-stations example')
 const walk = createWalk(hafas)

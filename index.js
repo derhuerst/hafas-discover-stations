@@ -1,11 +1,11 @@
-'use strict'
+import createDebug from 'debug'
+import {DateTime} from 'luxon'
+import {Readable} from 'node:stream'
+import createQueue from 'queue'
+import speedometer from 'speedometer'
+import {createRequestCounter as createReqCounter} from './lib/req-counter.js'
 
-const debug = require('debug')('hafas-discover-stations')
-const {DateTime} = require('luxon')
-const {Readable} = require('stream')
-const createQueue = require('queue')
-const speedometer = require('speedometer')
-const createReqCounter = require('./lib/req-counter')
+const debug = createDebug('hafas-discover-stations')
 
 const minute = 60 * 1000
 
@@ -17,7 +17,7 @@ const defaults = {
 	linesOfStops: false,
 }
 
-const createWalk = (hafas) => {
+const createWalkAndDiscoverStations = (hafas) => {
 	if (!hafas || !hafas.profile) throw new Error('invalid hafas client')
 	if ('string' !== typeof hafas.profile.timezone) {
 		throw new Error('hafas.profile.timezone must be a string')
@@ -35,7 +35,7 @@ const createWalk = (hafas) => {
 		throw new Error('hafas.journeys must be a function')
 	}
 
-	const walk = (first = null, opt = {}) => {
+	const walkAndDiscoverStations = (first = null, opt = {}) => {
 		if (first !== null && 'string' !== typeof first) {
 			opt = first
 			first = null
@@ -279,7 +279,9 @@ const createWalk = (hafas) => {
 		if (first) setImmediate(queueStopId, first)
 		return out
 	}
-	return walk
+	return walkAndDiscoverStations
 }
 
-module.exports = createWalk
+export {
+	createWalkAndDiscoverStations,
+}
