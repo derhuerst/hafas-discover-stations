@@ -39,11 +39,11 @@
 	},
 	"devDependencies": {
 		"eslint": "^7.18.0",
-		"hafas-client": "^5.21.1",
+		"hafas-client": "^6.2.1",
 		"through2": "^4.0.2"
 	},
 	"peerDependencies": {
-		"hafas-client": "^5.0.0"
+		"hafas-client": "^6.0.0"
 	},
 	"scripts": {
 		"test": "node test.js",

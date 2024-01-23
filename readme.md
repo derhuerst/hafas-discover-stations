@@ -19,8 +19,8 @@ npm install hafas-discover-stations
 
 ```js
 import {createWalkAndDiscoverStations as createWalk} from 'hafas-discover-stations'
-import createHafas from 'hafas-client'
-import dbProfile from 'hafas-client/p/db/index.js'
+import {createClient as createHafas} from 'hafas-client'
+import {profile as dbProfile} from 'hafas-client/p/db/index.js'
 
 const hafas = createHafas(dbProfile, 'my-awesome-program')
 const walk = createWalk(hafas)

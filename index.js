@@ -160,7 +160,7 @@ const createWalkAndDiscoverStations = (hafas) => {
 				subStops: !!opt.subStops,
 				linesOfStops: !!opt.linesOfStops,
 			})
-			.then((trip) => {
+			.then(({trip}) => {
 				reqCounter.onReqTime(Date.now() - t0)
 				stats()
 
@@ -211,7 +211,7 @@ const createWalkAndDiscoverStations = (hafas) => {
 				subStops: !!opt.subStops,
 				linesOfStops: !!opt.linesOfStops,
 			})
-			.then((deps) => {
+			.then(({departures: deps}) => {
 				reqCounter.onReqTime(Date.now() - t0)
 				stats()
 

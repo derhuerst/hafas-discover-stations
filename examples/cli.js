@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import createHafas from 'hafas-client'
-import dbProfile from 'hafas-client/p/db/index.js'
+import {createClient as createHafas} from 'hafas-client'
+import {profile as dbProfile} from 'hafas-client/p/db/index.js'
 import {createWalkAndDiscoverStations as createWalk} from '../index.js'
 import {runCli as run} from '../bin.js'
 const pkg = require('../package.json')

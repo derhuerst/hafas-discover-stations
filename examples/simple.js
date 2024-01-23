@@ -1,5 +1,5 @@
-import createHafas from 'hafas-client'
-import dbProfile from 'hafas-client/p/db/index.js'
+import {createClient as createHafas} from 'hafas-client'
+import {profile as dbProfile} from 'hafas-client/p/db/index.js'
 import {pipeline} from 'node:stream/promises'
 import through from 'through2'
 import ndjson from 'ndjson'
