@@ -60,6 +60,7 @@ walk(stationId, [opt])
 - `timeout`: timeout for a single job in milliseconds – default: `10000`
 - `parseStationId`: an optional function to process station IDs – default: `id => id`
 - `stationLines`: Query lines of stops/stations? – default: `false`
+- `shouldQueryDeparturesAt(stopId, nrOfHops)`: Should departures be queries from this `stopId`, effectively continuing the graph search? – default: `() => true`
 
 
 ## Contributing

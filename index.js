@@ -39,6 +39,7 @@ const createWalkAndDiscoverStations = (hafas) => {
 			parseStationId: id => id,
 			subStops: true,
 			linesOfStops: false,
+			shouldQueryDeparturesAt: (stopId, hops) => true,
 			...opt,
 		}
 		if (!('when' in opt) || opt.when === null) {
@@ -91,8 +92,11 @@ const createWalkAndDiscoverStations = (hafas) => {
 			visitedStopsAndStations[sId] = true
 			nrOfStopsAndStations++
 			out.push(station)
-			queue.push(queryDepartures(sId, hops + 1))
 			stopsAndStationsPerSecond = stopsAndStationsSpeed(1)
+
+			if (opt.shouldQueryDeparturesAt(sId, hops + 1)) {
+				queue.push(queryDepartures(sId, hops + 1))
+			}
 		}
 
 		const onStop = (stop, hops) => {
@@ -104,8 +108,11 @@ const createWalkAndDiscoverStations = (hafas) => {
 
 			nrOfStopsAndStations++
 			out.push(stop)
-			queue.push(queryDepartures(sId, hops + 1))
 			stopsAndStationsPerSecond = stopsAndStationsSpeed(1)
+
+			if (opt.shouldQueryDeparturesAt(sId, hops + 1)) {
+				queue.push(queryDepartures(sId, hops + 1))
+			}
 		}
 
 		const onStopsAndStations = (stopsAndStations, hops) => {

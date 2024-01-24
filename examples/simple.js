@@ -8,7 +8,10 @@ import {createWalkAndDiscoverStations as createWalk} from '../index.js'
 const hafas = createHafas(dbProfile, 'hafas-discover-stations example')
 const walk = createWalk(hafas)
 const berlinFriedrichstr = '8011306'
-const stations = walk(berlinFriedrichstr, {concurrency: 8})
+const stations = walk(berlinFriedrichstr, {
+	concurrency: 8,
+	shouldQueryDeparturesAt: (stopId, hops) => hops <= 1,
+})
 
 const DEV = process.env.NODE_ENV === 'dev'
 stations.on('hafas-error', (err) => {
