@@ -84,19 +84,19 @@ const createWalkAndDiscoverStations = (hafas) => {
 			})
 		}
 
-		const onStation = (station) => {
+		const onStation = (station, hops) => {
 			const sId = opt.parseStationId(station.id)
 			if (visitedStopsAndStations[sId]) return;
 
 			visitedStopsAndStations[sId] = true
 			nrOfStopsAndStations++
 			out.push(station)
-			queue.push(queryDepartures(sId))
+			queue.push(queryDepartures(sId, hops + 1))
 			stopsAndStationsPerSecond = stopsAndStationsSpeed(1)
 		}
 
-		const onStop = (stop) => {
-			if (stop.station) onStation(stop.station)
+		const onStop = (stop, hops) => {
+			if (stop.station) onStation(stop.station, hops)
 
 			const sId = opt.parseStationId(stop.id)
 			if (visitedStopsAndStations[sId]) return;
@@ -104,22 +104,22 @@ const createWalkAndDiscoverStations = (hafas) => {
 
 			nrOfStopsAndStations++
 			out.push(stop)
-			queue.push(queryDepartures(sId))
+			queue.push(queryDepartures(sId, hops + 1))
 			stopsAndStationsPerSecond = stopsAndStationsSpeed(1)
 		}
 
-		const onStopsAndStations = (stopAndStations) => {
-			for (let stopOrStation of stopAndStations) {
+		const onStopsAndStations = (stopsAndStations, hops) => {
+			for (const stopOrStation of stopsAndStations) {
 				if (stopOrStation.type === 'station') {
-					onStation(stopOrStation)
+					onStation(stopOrStation, hops)
 				} else {
-					onStop(stopOrStation)
+					onStop(stopOrStation, hops)
 				}
 			}
 			stats()
 		}
 
-		const onEdge = (source, target, duration, line) => {
+		const onEdge = (source, target, duration, line, hops) => {
 			const signature = [
 				opt.parseStationId(source.id),
 				opt.parseStationId(target.id),
@@ -129,28 +129,29 @@ const createWalkAndDiscoverStations = (hafas) => {
 			visitedEdges[signature] = true
 
 			nrOfEdges++
-			out.emit('edge', {source, target, duration, line})
+			out.emit('edge', {source, target, duration, line, hops})
 		}
 
-		const onLeg = (leg) => {
+		const onLeg = (leg, hops) => {
 			if (!Array.isArray(leg.stopovers)) return // todo
 
 			for (let i = 1; i < leg.stopovers.length; i++) {
 				const st1 = leg.stopovers[i - 1]
 				const st2 = leg.stopovers[i]
+				// todo: planned{Arrival,Departure}
 				const start = st1.arrival || st1.departure // todo: swap?
 				const end = st2.arrival || st2.departure
 				if (!start || !end) continue
 				const duration = new Date(end) - new Date(start)
-				onEdge(st1.stop, st2.stop, duration, leg.line)
+				onEdge(st1.stop, st2.stop, duration, leg.line, hops)
 			}
 
 			const stops = leg.stopovers.map(st => st.stop)
-			onStopsAndStations(stops)
+			onStopsAndStations(stops, hops)
 		}
 
-		const queryStopovers = (tripId, lineName, direction, when, originId) => (cb) => {
-			debug('stopovers', tripId, lineName, direction, 'originId', originId)
+		const queryStopovers = (tripId, lineName, direction, when, originId, hops) => (cb) => {
+			debug('stopovers', tripId, lineName, direction, 'originId', originId, 'hops', hops)
 
 			const t0 = Date.now()
 			hafas.trip(tripId, lineName || 'foo', {
@@ -162,7 +163,7 @@ const createWalkAndDiscoverStations = (hafas) => {
 				reqCounter.onReqTime(Date.now() - t0)
 				stats()
 
-				onLeg(trip)
+				onLeg(trip, hops)
 				cb()
 			})
 			.catch((err) => {
@@ -180,7 +181,7 @@ const createWalkAndDiscoverStations = (hafas) => {
 					reqCounter.onReqTime(Date.now() - t0)
 					stats()
 
-					onStopsAndStations(targets)
+					onStopsAndStations(targets, hops)
 
 					for (let target of targets) {
 						const tId = opt.parseStationId(target.id)
@@ -189,7 +190,7 @@ const createWalkAndDiscoverStations = (hafas) => {
 						].join('-')
 						if (!visitedJourneys[sig]) {
 							visitedJourneys[sig] = true
-							queue.unshift(queryJourneys(originId, tId, when))
+							queue.unshift(queryJourneys(originId, tId, when, hops))
 						}
 					}
 					cb()
@@ -198,8 +199,8 @@ const createWalkAndDiscoverStations = (hafas) => {
 			.catch(cb)
 		}
 
-		const queryDepartures = (id) => (cb) => {
-			debug('departures', id)
+		const queryDepartures = (id, hops) => (cb) => {
+			debug('departures', id, 'hops', hops)
 
 			const t0 = Date.now()
 			hafas.departures(id, {
@@ -213,7 +214,7 @@ const createWalkAndDiscoverStations = (hafas) => {
 				reqCounter.onReqTime(Date.now() - t0)
 				stats()
 
-				onStopsAndStations(deps.map(dep => dep.stop))
+				onStopsAndStations(deps.map(dep => dep.stop), hops + 1)
 
 				for (let dep of deps) {
 					if (visitedTrips[dep.tripId]) continue
@@ -223,15 +224,15 @@ const createWalkAndDiscoverStations = (hafas) => {
 					const lName = dep.line && dep.line.name || ''
 					const when = new Date(dep.when) - 2 * minute
 					const origId = opt.parseStationId(dep.stop.id)
-					queue.unshift(queryStopovers(tripId, lName, direction, when, origId))
+					queue.unshift(queryStopovers(tripId, lName, direction, when, origId, hops + 1))
 				}
 				cb()
 			})
 			.catch(cb)
 		}
 
-		const queryJourneys = (originId, target, when) => (cb) => {
-			debug('journeys', originId, target, when)
+		const queryJourneys = (originId, target, when, hops) => (cb) => {
+			debug('journeys', originId, target, when, hops)
 
 			const t0 = Date.now()
 			hafas.journeys(originId, target, {
@@ -246,7 +247,7 @@ const createWalkAndDiscoverStations = (hafas) => {
 				stats()
 
 				for (let journey of journeys) {
-					for (let leg of journey.legs) onLeg(leg)
+					for (let leg of journey.legs) onLeg(leg, hops)
 				}
 				cb()
 			})
@@ -287,7 +288,7 @@ const createWalkAndDiscoverStations = (hafas) => {
 		out.markAsVisited = markAsVisited
 
 		const queueStopId = (stopId) => {
-			queue.push(queryDepartures(stopId))
+			queue.push(queryDepartures(stopId, 0))
 			if (!queue.running) queue.start()
 		}
 		out.queueStopId = queueStopId
