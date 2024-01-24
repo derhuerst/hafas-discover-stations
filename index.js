@@ -9,14 +9,6 @@ const debug = createDebug('hafas-discover-stations')
 
 const minute = 60 * 1000
 
-const defaults = {
-	concurrency: 4,
-	timeout: 30 * 1000,
-	parseStationId: id => id,
-	subStops: true,
-	linesOfStops: false,
-}
-
 const createWalkAndDiscoverStations = (hafas) => {
 	if (!hafas || !hafas.profile) throw new Error('invalid hafas client')
 	if ('string' !== typeof hafas.profile.timezone) {
@@ -41,8 +33,15 @@ const createWalkAndDiscoverStations = (hafas) => {
 			first = null
 		}
 
-		opt = Object.assign({}, defaults, opt)
-		if (!opt.when) {
+		opt = {
+			concurrency: 4,
+			timeout: 30 * 1000,
+			parseStationId: id => id,
+			subStops: true,
+			linesOfStops: false,
+			...opt,
+		}
+		if (!('when' in opt) || opt.when === null) {
 			// beginning of next week 10 am
 			opt.when = DateTime.fromMillis(Date.now(), {
 				zone: hafas.profile.timezone,
